@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:schedulcok/add_new.dart';
+import 'package:schedulcok/listed.dart';
 
 class RootApp extends StatefulWidget {
   @override
@@ -21,7 +27,8 @@ class _RootAppState extends State<RootApp> {
         size: GFSize.LARGE,
         icon: Icon(Icons.add),
         onPressed: () {
-          setState(() {});
+          Navigator.of(context)
+              .push(CupertinoPageRoute(builder: (context) => AddNew()));
         },
         color: GFColors.PRIMARY,
         shape: GFIconButtonShape.pills,
@@ -33,7 +40,10 @@ class _RootAppState extends State<RootApp> {
         child: GFButton(
           text: "리스트",
           textStyle: TextStyle(fontSize: 17),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context)
+                .push(CupertinoPageRoute(builder: (context) => Listed()));
+          },
           size: GFSize.LARGE,
           color: GFColors.WARNING,
           shape: GFButtonShape.pills,
