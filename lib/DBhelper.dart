@@ -28,10 +28,11 @@ class DBhelper {
     return await openDatabase(path, version: 1, onCreate: (db, version) async {
       await db.execute('''
           CREATE TABLE $TableName(
-            title TEXT PRIMARY KEY,
-            difficulty INTEGER,
+            id INTEGER PRIMARY KEY,
+            title TEXT,
+            difficulty TEXT,
             content TEXT,
-            date TEXT,
+            date TEXT
           )
         ''');
     }, onUpgrade: (db, oldVersion, newVersion) {});
@@ -39,17 +40,18 @@ class DBhelper {
 
   createData(Schedule schedule) async {
     final db = await database;
-    var res = await db
-        .rawInsert('INSERT INTO $TableName(name) VALUES(?)', [schedule.title]);
+    var res = await db.insert('$TableName', schedule.toMap());
+
     return res;
   }
 
   //Read
-  readSchedule(String id) async {
+  readSchedule(int id) async {
     final db = await database;
     var res = await db.rawQuery('SELECT * FROM $TableName WHERE id = ?', [id]);
     return res.isNotEmpty
         ? Schedule(
+            id: res.first['id'],
             title: res.first['title'],
             difficulty: res.first['difficulty'],
             content: res.first['content'],
@@ -65,11 +67,11 @@ class DBhelper {
     List<Schedule> list = res.isNotEmpty
         ? res
             .map((c) => Schedule(
-                  title: res.first['title'],
-                  difficulty: res.first['difficulty'],
-                  content: res.first['content'],
-                  date: res.first['date'],
-                ))
+                id: c['id'],
+                title: c['title'],
+                difficulty: c['difficulty'],
+                content: c['content'],
+                date: c['date']))
             .toList()
         : [];
 
@@ -87,5 +89,12 @@ class DBhelper {
   deleteAllSchedule() async {
     final db = await database;
     db.rawDelete('DELETE FROM $TableName');
+  }
+
+  updateDog(Schedule schedule) async {
+    final db = await database;
+    var res = db.rawUpdate('UPDATE $TableName SET name = ? WHERE = ?',
+        [schedule.title, schedule.difficulty, schedule.content, schedule.date]);
+    return res;
   }
 }

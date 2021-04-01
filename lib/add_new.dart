@@ -4,14 +4,14 @@ import 'package:schedulcok/DBhelper.dart';
 import 'package:schedulcok/schedule.dart';
 
 class AddNew extends StatelessWidget {
-  List<TextEditingController> new_schedule = [
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-  ];
+  TextEditingController titleController = TextEditingController();
+  TextEditingController difficultyController = TextEditingController();
+  TextEditingController contentController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    int id_ = 0;
+
     return Scaffold(
       appBar: CupertinoNavigationBar(
         // padding: EdgeInsetsDirectional.only(top: 20, bottom: 20),
@@ -25,33 +25,36 @@ class AddNew extends StatelessWidget {
             size: 35,
           ),
           padding: EdgeInsets.zero,
-          onPressed: () async {
+          onPressed: () {
             var new_one = Schedule(
-              title: new_schedule[0].toString(),
-              difficulty: int.parse(new_schedule[1].toString()),
-              content: new_schedule[2].toString(),
+              id: id_++,
+              title: titleController.text,
+              difficulty: difficultyController.text,
+              content: contentController.text,
               date: DateTime.now().toString(),
             );
-            await DBhelper().createData(new_one);
+            DBhelper().createData(new_one);
+
+            Navigator.pop(context);
           },
         ),
       ),
       body: Column(
         children: [
           CupertinoTextField(
-            controller: new_schedule[0],
+            controller: titleController,
             maxLength: 15,
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             placeholder: '제목',
-            placeholderStyle: TextStyle(fontSize: 30),
+            placeholderStyle: TextStyle(fontSize: 30, color: Colors.grey),
             style: TextStyle(fontSize: 30),
           ),
           CupertinoTextField(
-            controller: new_schedule[1],
+            controller: difficultyController,
             maxLength: 4,
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             placeholder: '피로도',
-            placeholderStyle: TextStyle(fontSize: 30),
+            placeholderStyle: TextStyle(fontSize: 30, color: Colors.grey),
             style: TextStyle(fontSize: 30),
           ),
           Expanded(
@@ -59,11 +62,11 @@ class AddNew extends StatelessWidget {
               keyboardType: TextInputType.multiline,
               maxLines: null,
               maxLength: 300,
-              controller: new_schedule[2],
+              controller: contentController,
               textAlignVertical: TextAlignVertical.top,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               placeholder: '할 일 설명',
-              placeholderStyle: TextStyle(fontSize: 30),
+              placeholderStyle: TextStyle(fontSize: 30, color: Colors.grey),
               style: TextStyle(fontSize: 30),
             ),
           ),

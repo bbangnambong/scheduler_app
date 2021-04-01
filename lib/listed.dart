@@ -6,42 +6,58 @@ import 'package:getwidget/getwidget.dart';
 import 'package:schedulcok/DBhelper.dart';
 import 'package:schedulcok/schedule.dart';
 
-class Listed extends StatelessWidget {
-  List<Schedule> scheduleInfo = [
-    Schedule(
-      title: "컴퓨터 구조 과제",
-      difficulty: 30,
-      content: "컴퓨터 구조의 과제를 한다",
-      date: DateTime.now().toString(),
-    )
-  ];
+class Listed extends StatefulWidget {
+  @override
+  _ListedState createState() => _ListedState();
+}
+
+class _ListedState extends State<Listed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: Platform.isIOS
           ? CupertinoNavigationBar(
-              middle: Text("Listed"),
+              middle: Text("일정 리스트"),
             )
           : AppBar(
-              title: Text("Listed"),
+              title: Text("일정 리스트"),
             ),
-      body: ListView.builder(
-        itemCount: scheduleInfo.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GFCard(
-            title: GFListTile(
-              title: Text(scheduleInfo[index].title),
-              subtitle: Text(scheduleInfo[index].difficulty.toString()),
-            ),
-            content: Text(scheduleInfo[index].content),
+      body: FutureBuilder(
+        future: DBhelper().readAllSchedule(),
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Schedule>> snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext context, int index) {
+                return scheduleBox(snapshot.data[index]);
+              },
+            );
+          }
+          return GFLoader(
+            type: GFLoaderType.ios,
+            size: 80,
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          DBhelper().deleteAllSchedule();
+          setState(() {});
+        },
+        child: Icon(Icons.delete),
+      ),
     );
   }
-}
 
-resc() async {
-  List<Schedule> scin = await DBhelper().readAllSchedule();
-  return scin;
+  Widget scheduleBox(Schedule schedule) {
+    return Column(
+      children: [
+        Text(schedule.title != null ? schedule.title : '불러오기 오류'),
+        Text(schedule.difficulty != null ? schedule.difficulty : '불러오기 오류'),
+        Text(schedule.content != null ? schedule.content : '불러오기 오류'),
+        Text(schedule.date != null ? schedule.date : '불러오기 오류'),
+      ],
+    );
+  }
 }
