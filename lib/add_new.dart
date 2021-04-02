@@ -10,8 +10,6 @@ class AddNew extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int id_ = 0;
-
     return Scaffold(
       appBar: CupertinoNavigationBar(
         // padding: EdgeInsetsDirectional.only(top: 20, bottom: 20),
@@ -25,9 +23,10 @@ class AddNew extends StatelessWidget {
             size: 35,
           ),
           padding: EdgeInsets.zero,
-          onPressed: () {
+          onPressed: () async {
+            int id_ = (await DBhelper().getID()) + 1;
             var new_one = Schedule(
-              id: id_++,
+              id: id_,
               title: titleController.text,
               difficulty: difficultyController.text,
               content: contentController.text,

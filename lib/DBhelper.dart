@@ -79,7 +79,7 @@ class DBhelper {
   }
 
   //Delete
-  deleteSchedule(String id) async {
+  deleteSchedule(int id) async {
     final db = await database;
     var res = db.rawDelete('DELETE FROM $TableName WHERE id = ?', [id]);
     return res;
@@ -96,5 +96,17 @@ class DBhelper {
     var res = db.rawUpdate('UPDATE $TableName SET name = ? WHERE = ?',
         [schedule.title, schedule.difficulty, schedule.content, schedule.date]);
     return res;
+  }
+
+  Future<int> getID() async {
+    final db = await database;
+    int highestID = 0;
+    var res = await db.rawQuery('SELECT * FROM $TableName');
+    List<int> ids =
+        res.isNotEmpty ? res.map((c) => c['id'] as int).toList() : [];
+    for (int i = 0; i < ids.length; i++) {
+      if (highestID < ids[i]) highestID = ids[i];
+    }
+    return highestID;
   }
 }
