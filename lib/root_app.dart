@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:schedulcok/add_new.dart';
 import 'package:schedulcok/listed.dart';
 
@@ -18,6 +19,8 @@ class _RootAppState extends State<RootApp> {
     );
   }
 
+  Color coral = HexColor("5f9ea0");
+  Color textColor = Colors.grey[100];
   Widget basicMenu() {
     List<Widget> basic_menus = [
       GFIconButton(
@@ -28,7 +31,7 @@ class _RootAppState extends State<RootApp> {
           Navigator.of(context)
               .push(CupertinoPageRoute(builder: (context) => AddNew()));
         },
-        color: GFColors.PRIMARY,
+        color: HexColor('5b92e4'),
         shape: GFIconButtonShape.pills,
       ),
       SizedBox(
@@ -37,38 +40,37 @@ class _RootAppState extends State<RootApp> {
       Expanded(
         child: GFButton(
           text: "리스트",
-          textStyle: TextStyle(fontSize: 17),
+          textStyle: TextStyle(fontSize: 17, color: textColor),
           onPressed: () {
             Navigator.of(context)
                 .push(CupertinoPageRoute(builder: (context) => Listed()));
           },
           size: GFSize.LARGE,
-          color: GFColors.WARNING,
+          color: coral,
           shape: GFButtonShape.pills,
         ),
       ),
       SizedBox(
         width: 20,
       ),
-      Expanded(
-        child: GFButton(
-          text: "공유하기",
-          textStyle: TextStyle(fontSize: 17),
-          onPressed: () {},
-          size: GFSize.LARGE,
-          color: GFColors.WARNING,
-          shape: GFButtonShape.pills,
-        ),
-      ),
-      SizedBox(
-        width: 20,
-      ),
-      GFIconButton(
-        icon: Icon(Icons.settings),
+      GFButton(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        text: "공유",
+        textStyle: TextStyle(fontSize: 17, color: textColor),
         onPressed: () {},
-        color: GFColors.SUCCESS,
-        shape: GFIconButtonShape.pills,
-      )
+        size: GFSize.LARGE,
+        color: coral,
+        shape: GFButtonShape.pills,
+      ),
+      // SizedBox(
+      //   width: 20,
+      // ),
+      // GFIconButton(
+      //   icon: Icon(Icons.settings),
+      //   onPressed: () {},
+      //   color: GFColors.SUCCESS,
+      //   shape: GFIconButtonShape.pills,
+      // )
     ];
 
     return Container(
