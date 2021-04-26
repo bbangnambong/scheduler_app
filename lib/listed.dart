@@ -13,18 +13,8 @@ class Listed extends StatefulWidget {
 class _ListedState extends State<Listed> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CupertinoNavigationBar(
-          middle: Text("일정 리스트"), backgroundColor: Colors.transparent),
-      body: future_schedule(3),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          DBhelper().deleteAllSchedule();
-          setState(() {});
-        },
-        child: Icon(Icons.delete),
-        backgroundColor: HexColor('5b92e4'),
-      ),
+    return Container(
+      child: futureSchedule(),
     );
   }
 
@@ -34,22 +24,30 @@ class _ListedState extends State<Listed> {
     var dat = schedule.date;
     double _radius;
     double _padding;
-    Color boxColor;
+    Color todayColor = Colors.red;
+    Color boxColor, reboxColor;
+    String _day = DateTime.now().day.toString();
+    String _date = DateTime.now().month.toString();
+    if (_day.length == 1) _day = '0' + _day;
+    if (_date.length == 1) _date = '0' + _date;
+    (_date + _day) == dat
+        ? boxColor = todayColor
+        : boxColor = HexColor("F08080");
     if (index < 7) {
       _radius = 30 + 5 * index.toDouble();
       _padding = 9 + 1.2 * index.toDouble();
-      boxColor = HexColor("F08080").withOpacity(1 - 0.07 * index);
+      reboxColor = boxColor.withOpacity(1 - 0.07 * index);
     } else {
       _radius = 30 + 5 * 7.0;
       _padding = 9 + 1.2 * 7.0;
-      boxColor = HexColor("F08080").withOpacity(1 - 0.07 * 7);
+      reboxColor = boxColor.withOpacity(1 - 0.07 * 7);
     }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: _padding, vertical: 6),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
         decoration: BoxDecoration(
-            color: boxColor,
+            color: reboxColor,
             borderRadius: new BorderRadius.all(
               Radius.circular(_radius),
             )),
@@ -70,7 +68,7 @@ class _ListedState extends State<Listed> {
                   ),
                 ),
                 Text(
-                  schedule.difficulty != null ? '우선순위 : $diff' : '불러오기 오류',
+                  schedule.difficulty != null ? '소요시간 : $diff' : '불러오기 오류',
                   style: TextStyle(
                     color: textColor,
                     fontSize: 18,
@@ -109,57 +107,9 @@ class _ListedState extends State<Listed> {
     );
   }
 
-  Widget future_schedule(int sortBy) {
-    // 1:피로도 오름차순, 2: 피로도 내림차순 3:default
-    Future<List<Schedule>> sortedSchedule() async {
-      List<Schedule> sortedList = await DBhelper().readAllSchedule();
-      if (sortBy == 1) {
-        sortedList.sort((a, b) {
-          int ad = int.parse(a.difficulty);
-          int bd = int.parse(b.difficulty);
-          if (ad > bd)
-            return 1;
-          else if (ad < bd)
-            return -1;
-          else
-            return 0;
-        });
-      } else if (sortBy == 2) {
-        sortedList.sort((a, b) {
-          int ad = int.parse(a.difficulty);
-          int bd = int.parse(b.difficulty);
-          if (ad > bd)
-            return -1;
-          else if (ad < bd)
-            return 1;
-          else
-            return 0;
-        });
-      } else if (sortBy == 3) {
-        sortedList.sort((a, b) {
-          int ad = int.parse(a.date);
-          int bd = int.parse(b.date);
-          if (ad > bd)
-            return 1;
-          else if (ad < bd)
-            return -1;
-          else {
-            int av = int.parse(a.difficulty);
-            int bv = int.parse(b.difficulty);
-            if (av > bv)
-              return 1;
-            else if (av < bv)
-              return -1;
-            else
-              return 0;
-          }
-        });
-      }
-      return sortedList;
-    }
-
+  Widget futureSchedule() {
     return FutureBuilder(
-      future: sortedSchedule(),
+      future: DBhelper().readAllSchedule(),
       builder: (BuildContext context, AsyncSnapshot<List<Schedule>> snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
@@ -167,9 +117,9 @@ class _ListedState extends State<Listed> {
             itemBuilder: (BuildContext context, int index) {
               final item = snapshot.data[index];
               return Dismissible(
-                key: UniqueKey(),
+                key: Key(item.id.toString()),
                 onDismissed: (direction) async {
-                  await DBhelper().deleteSchedule(item.id);
+                  await DBhelper().movetoOld(item);
                 },
                 child: scheduleBox(snapshot.data[index], index),
               );

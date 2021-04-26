@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:schedulcok/DBhelper.dart';
 import 'package:schedulcok/schedule.dart';
-import 'package:schedulcok/table_calendar.dart';
 
 class AddNew extends StatelessWidget {
-  TextEditingController titleController = TextEditingController();
-  TextEditingController difficultyController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
-  Color textFieldColor = Colors.transparent;
-  Color textColor = Colors.grey[50];
-  Color placeHolderColor = Colors.grey[350];
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController difficultyController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
+  final Color textFieldColor = Colors.transparent;
+  final Color textColor = Colors.grey[50];
+  final Color placeHolderColor = Colors.grey[350];
 
   @override
   Widget build(BuildContext context) {
@@ -30,34 +29,34 @@ class AddNew extends StatelessWidget {
           ),
           padding: EdgeInsets.zero,
           onPressed: () async {
-            int id_ = (await DBhelper().getID()) + 1;
+            int _id = (await DBhelper().getID()) + 1;
             List<String> _titleCon = titleController.text.split(" ");
-            String _date = DateTime.now().month.toString();
+            String _date;
             String _day;
             String _title = " ";
             if (num.tryParse(_titleCon[0]) != null) {
-              _day = num.tryParse(_titleCon[0]).toString();
-              _date = '';
+              _date = num.tryParse(_titleCon[0]).toString();
               for (int i = 1; i < _titleCon.length; i++) {
-                _title += _titleCon[i];
+                _title += (_titleCon[i] + " ");
               }
             } else {
               _day = DateTime.now().day.toString();
+              _date = DateTime.now().month.toString();
+              if (_day.length == 1) _day = '0' + _day;
               for (int i = 0; i < _titleCon.length; i++) {
-                _title += _titleCon[i];
+                _title += (_titleCon[i] + " ");
               }
             }
-            if (_day.length == 1 || _day.length == 3) _day = '0' + _day;
-            _date = _date + _day;
+            if (_date.length == 1 || _date.length == 3) _date = '0' + _date;
+            if (_day != null) _date = _date + _day;
             var new_one = Schedule(
-              id: id_,
+              id: _id,
               title: _title,
               difficulty: difficultyController.text,
               content: contentController.text,
               date: _date,
             );
             DBhelper().createData(new_one);
-
             Navigator.pop(context);
           },
         ),
@@ -88,9 +87,9 @@ class AddNew extends StatelessWidget {
                 Expanded(
                   child: CupertinoTextField(
                     controller: difficultyController,
-                    maxLength: 1,
+                    maxLength: 5,
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    placeholder: '우선순위',
+                    placeholder: '소요시간(00~00)',
                     placeholderStyle:
                         TextStyle(fontSize: 30, color: placeHolderColor),
                     style: TextStyle(fontSize: 30, color: textColor),

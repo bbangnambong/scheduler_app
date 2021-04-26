@@ -1,5 +1,5 @@
 class Schedule {
-  final int id;
+  int id;
   final String title;
   final String difficulty;
   final String content;

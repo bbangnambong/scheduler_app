@@ -6,7 +6,7 @@ import 'package:schedulcok/schedule.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-final String TableName = 'Schedule';
+final String TableName = 'Schedule', DoneTableName = 'doneSchedule';
 
 class DBhelper {
   DBhelper._();
@@ -35,13 +35,29 @@ class DBhelper {
             date TEXT
           )
         ''');
+      await db.execute('''
+          CREATE TABLE $DoneTableName(
+            id INTEGER PRIMARY KEY,
+            title TEXT,
+            difficulty TEXT,
+            content TEXT,
+            date TEXT
+          )
+        ''');
     }, onUpgrade: (db, oldVersion, newVersion) {});
   }
 
   createData(Schedule schedule) async {
     final db = await database;
     var res = await db.insert('$TableName', schedule.toMap());
+    return res;
+  }
 
+  movetoOld(Schedule schedule) async {
+    await deleteSchedule(schedule.id);
+    schedule.id = (await getDoneID()) + 1;
+    final db = await database;
+    var res = await db.insert('$DoneTableName', schedule.toMap());
     return res;
   }
 
@@ -64,6 +80,23 @@ class DBhelper {
   Future<List<Schedule>> readAllSchedule() async {
     final db = await database;
     var res = await db.rawQuery('SELECT * FROM $TableName');
+    List<Schedule> list = res.isNotEmpty
+        ? res
+            .map((c) => Schedule(
+                id: c['id'],
+                title: c['title'],
+                difficulty: c['difficulty'],
+                content: c['content'],
+                date: c['date']))
+            .toList()
+        : [];
+
+    return list;
+  }
+
+  Future<List<Schedule>> readAllDoneSchedule() async {
+    final db = await database;
+    var res = await db.rawQuery('SELECT * FROM $DoneTableName');
     List<Schedule> list = res.isNotEmpty
         ? res
             .map((c) => Schedule(
@@ -102,6 +135,18 @@ class DBhelper {
     final db = await database;
     int highestID = 0;
     var res = await db.rawQuery('SELECT * FROM $TableName');
+    List<int> ids =
+        res.isNotEmpty ? res.map((c) => c['id'] as int).toList() : [];
+    for (int i = 0; i < ids.length; i++) {
+      if (highestID < ids[i]) highestID = ids[i];
+    }
+    return highestID;
+  }
+
+  Future<int> getDoneID() async {
+    final db = await database;
+    int highestID = 0;
+    var res = await db.rawQuery('SELECT * FROM $DoneTableName');
     List<int> ids =
         res.isNotEmpty ? res.map((c) => c['id'] as int).toList() : [];
     for (int i = 0; i < ids.length; i++) {
