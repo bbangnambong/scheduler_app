@@ -10,20 +10,19 @@ class DoneListed extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: CupertinoNavigationBar(
-          middle: Text("완료한 리스트"),
-          backgroundColor: Colors.transparent,
-          // trailing: CupertinoButton(
-          //   padding: EdgeInsets.only(bottom: 0),
-          //   onPressed: () {
-          //     Navigator.of(context).push(
-          //         CupertinoPageRoute(builder: (context) => SearchInList()));
-          //   },
-          //   child: Icon(
-          //     Icons.search,
-          //     size: 25,
-          //   ),
-          // )
-        ),
+            middle: Text("완료한 리스트"),
+            backgroundColor: Colors.transparent,
+            trailing: CupertinoButton(
+              padding: EdgeInsets.only(bottom: 0),
+              onPressed: () {
+                Navigator.of(context).push(
+                    CupertinoPageRoute(builder: (context) => SearchInList()));
+              },
+              child: Icon(
+                Icons.search,
+                size: 25,
+              ),
+            )),
         body: FutureBuilder(
           future: DBhelper().readAllDoneSchedule(),
           builder:

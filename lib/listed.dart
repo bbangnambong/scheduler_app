@@ -14,7 +14,7 @@ class _ListedState extends State<Listed> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: futureSchedule(),
+      child: futureSchedule(3),
     );
   }
 
@@ -107,9 +107,57 @@ class _ListedState extends State<Listed> {
     );
   }
 
-  Widget futureSchedule() {
+  Widget futureSchedule(int sortBy) {
+    // 1:기한 오름차순, 2: 기한 내림차순 3:default
+    Future<List<Schedule>> sortedSchedule() async {
+      List<Schedule> sortedList = await DBhelper().readAllSchedule();
+      if (sortBy == 1) {
+        sortedList.sort((a, b) {
+          int ad = int.parse(a.difficulty);
+          int bd = int.parse(b.difficulty);
+          if (ad > bd)
+            return 1;
+          else if (ad < bd)
+            return -1;
+          else
+            return 0;
+        });
+      } else if (sortBy == 2) {
+        sortedList.sort((a, b) {
+          int ad = int.parse(a.difficulty);
+          int bd = int.parse(b.difficulty);
+          if (ad > bd)
+            return -1;
+          else if (ad < bd)
+            return 1;
+          else
+            return 0;
+        });
+      } else if (sortBy == 3) {
+        sortedList.sort((a, b) {
+          int ad = int.parse(a.date);
+          int bd = int.parse(b.date);
+          if (ad > bd)
+            return 1;
+          else if (ad < bd)
+            return -1;
+          else {
+            int av = int.parse(a.difficulty);
+            int bv = int.parse(b.difficulty);
+            if (av > bv)
+              return 1;
+            else if (av < bv)
+              return -1;
+            else
+              return 0;
+          }
+        });
+      }
+      return sortedList;
+    }
+
     return FutureBuilder(
-      future: DBhelper().readAllSchedule(),
+      future: sortedSchedule(),
       builder: (BuildContext context, AsyncSnapshot<List<Schedule>> snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
